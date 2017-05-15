@@ -24,13 +24,13 @@ htmlout="./html"
 #
 mediatypes="tvshow movie"
 
-if [ ! -f "$dbpath" ]; then
-   echo You haven't created your db directory, you need to create this
+if [ ! -d "$dbpath" ]; then
+   echo You haven\'t created your db directory, you need to create this
    echo and put your kodi database files in there for this script to work.
    exit
 fi
 
-if [ ! -f "$htmloutÂÂ"Â ]; then
+if [ ! -d "$htmlout" ]; then
    echo Your html output directory does not exist.
    exit
 fi
