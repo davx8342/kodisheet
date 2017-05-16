@@ -234,7 +234,10 @@ for mediatype in $mediatypes; do
             echo "<img width=150 src=\"../images/${mediatype}posters/$posterfile\"></a>" >> $htmlout/genre/$genre.$mediatype
          done
 
-         filegenre=${filegenre::-3}
+         if [ "$filegenre" != "" ]; then 
+            filegenre=${filegenre::-3}
+         fi
+
          echo "<a href=\"$mediatype/$idLoop.html\">" >> $htmlout/$mediatype.html
          echo "<img width=150 src=\"images/${mediatype}posters/$posterfile\"></a>" >> $htmlout/$mediatype.html
 
