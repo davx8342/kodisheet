@@ -98,6 +98,11 @@ for genre in $genres; do
    fi
 done
 
+#
+# remove the last 3 digits, basically ' | '
+#
+genrenav=${genrenav::-3}
+
 for genre in $genres; do
    if [ -f "$htmlout/genre/$genre.html" ]; then
       echo "<font class=\"heading\">" >> $htmlout/genre/$genre.html
@@ -112,8 +117,8 @@ echo "</head><body>" >> $htmlout/genre/index.html
 echo "<p class=\"navigaton\">" >> $htmlout/genre/index.html
 echo "<font class=\"giantheading\">Genres</font>" >> $htmlout/genre/index.html
 echo "<br /><br />" >> $htmlout/genre/index.html
-echo "$genrenav" >> $htmlout/genre/index.html
-echo "</p></body></html>" >> $htmlout/genre/index.html
+echo "<font class=\"heading\">$genrenav" >> $htmlout/genre/index.html
+echo "</font></p></body></html>" >> $htmlout/genre/index.html
 
 for mediatype in $mediatypes; do
 
@@ -229,6 +234,7 @@ for mediatype in $mediatypes; do
             echo "<img width=150 src=\"../images/${mediatype}posters/$posterfile\"></a>" >> $htmlout/genre/$genre.$mediatype
          done
 
+         filegenre=${filegenre::-3}
          echo "<a href=\"$mediatype/$idLoop.html\">" >> $htmlout/$mediatype.html
          echo "<img width=150 src=\"images/${mediatype}posters/$posterfile\"></a>" >> $htmlout/$mediatype.html
 
