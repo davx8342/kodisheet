@@ -22,7 +22,7 @@ htmlout="/var/www/html/kodisheet"
 #
 # what we process, your options are tvshow or movie or both
 #
-mediatypes="tvshow movie"
+mediatypes="movie tvshow"
 
 if [ ! -d "$dbpath" ]; then
    echo You haven\'t created your db directory, you need to create this
@@ -171,9 +171,26 @@ for mediatype in $mediatypes; do
             guide=`sqlite3 $dbpath/MyVideos107.db "SELECT c10 from $mediatype where $id=$idLoop"`
             contentrating=`sqlite3 $dbpath/MyVideos107.db "SELECT c13 from $mediatype where $id=$idLoop"`
             network=`sqlite3 $dbpath/MyVideos107.db "SELECT c14 from $mediatype where $id=$idLoop"`
+            echo $name
          fi
 
          if [ "$mediatype" == "movie" ]; then
+            idFile=`sqlite3 $dbpath/MyVideos107.db "SELECT idFile from $mediatype where $id=$idLoop"`
+            width=`sqlite3 $dbpath/MyVideos107.db "SELECT iVideoWidth from streamdetails where idFile=\"$idFile\" and iStreamType=0"`
+            height=`sqlite3 $dbpath/MyVideos107.db "SELECT iVideoHeight from streamdetails where idFile=\"$idFile\" and iStreamType=0"`
+            if [ "$width" == "1920" ]; then
+               width="1080p"
+            elif [ "$width" == "1280" ]; then
+               width="720p"
+            elif [ "$width" == "640" ]; then
+               width="480p"
+            elif [ "$width" == "" ]; then
+               width=""
+            else
+               width="${width}x${height}"
+            fi
+            filetype=`sqlite3 $dbpath/MyVideos107.db "SELECT strFilename from files where idFile=\"$idFile\""`
+            filetype="${filetype: -3}"
             trailerurl=`sqlite3 $dbpath/MyVideos107.db "SELECT c19 from $mediatype where $id=$idLoop"`
             if [ "$trailerurl" != "" ]; then
                videoarg=`echo $trailerurl|awk -F"videoid=" '{print $2}'|cut -c1-11`
@@ -184,9 +201,9 @@ for mediatype in $mediatypes; do
             rating=`sqlite3 $dbpath/MyVideos107.db "SELECT c12 from $mediatype where $id=$idLoop"`
             runtime=`sqlite3 $dbpath/MyVideos107.db "SELECT c11 from $mediatype where $id=$idLoop"`
             director=`sqlite3 $dbpath/MyVideos107.db "SELECT c15 from $mediatype where $id=$idLoop"`
+            echo $name posterfile: $posterfile prevposterfile: $prevposterfile
          fi
 
-         echo $name
 
          out="$htmlout/$mediatype/$idLoop.html"
          if [ -f "$out" ]; then
@@ -209,15 +226,69 @@ for mediatype in $mediatypes; do
          posterurl=`sqlite3 $dbpath/MyVideos107.db "SELECT url from art where media_id=$idLoop and type='poster' and media_type=\"$mediatype\""`
          if [ "$posterurl" != "" ]; then
             posterfile=$(basename $posterurl)
+
+            if [ "$posterfile" == "$prevposterfile" ]; then
+               posterfile=${idLoop}.jpg
+#               wget -O $htmlout/images/${mediatype}posters/${posterfile} $posterurl
+            fi
+
             if [ ! -f "$htmlout/images/${mediatype}posters/$posterfile" ]; then
                wget -O $htmlout/images/${mediatype}posters/TEMP${posterfile} $posterurl
-               convert $htmlout/images/${mediatype}posters/TEMP${posterfile} -resize 150 $htmlout/images/${mediatype}posters/${posterfile}
-               if [ -f $htmlout/images/${mediatype}posters/TEMP${posterfile} ]; then
-                  rm $htmlout/images/${mediatype}posters/TEMP${posterfile}
+
+              
+               if [ "$mediatype" == "movie" ]; then
+                  if [ "$width" == "" ]; then
+                     imagetext="$filetype"
+                  else
+                     imagetext="${width} / ${filetype}"
+                  fi
+                  convert $htmlout/images/${mediatype}posters/TEMP${posterfile} -resize 150 $htmlout/images/${mediatype}posters/TEMP1${posterfile}
+               posterwidth=`identify -format %w $htmlout/images/${mediatype}posters/TEMP1${posterfile}`
+#               posterheight=`identify -format %h $htmlout/images/${mediatype}posters/TEMP1${posterfile}`
+
+
+
+#                 marker=$((posterheight-25))
+#                 convert -background '#0008' -fill white -gravity center -size ${posterwidth}x30 caption:"$imagetext" $htmlout/images/${mediatype}posters/TEMP1${posterfile} +swap -gravity south -composite $htmlout/images/${mediatype}posters/${posterfile}
+convert -background '#0008' -fill white -gravity southeast -size ${posterwidth}x15 caption:"${imagetext}" $htmlout/images/${mediatype}posters/TEMP1${posterfile} +swap -gravity south -composite $htmlout/images/${mediatype}posters/${posterfile}
+
+               else
+                  convert $htmlout/images/${mediatype}posters/TEMP${posterfile} -resize 150 $htmlout/images/${mediatype}posters/${posterfile}
                fi
+                  if [ -f "$htmlout/images/${mediatype}posters/TEMP1${posterfile}" ]; then
+                     rm $htmlout/images/${mediatype}posters/TEMP1${posterfile}
+                  fi
+                  if [ -f $htmlout/images/${mediatype}posters/TEMP${posterfile} ]; then
+                     rm $htmlout/images/${mediatype}posters/TEMP${posterfile}
+                  fi
+               prevposterfile=${posterfile}
             fi
          else
-            posterfile="unknown.jpg"
+            cp $htmlout/images/${mediatype}posters/unknown.jpg $htmlout/images/${mediatype}posters/TEMP1${idLoop}.jpg
+            convert -background '#0008' -fill white -gravity southeast -size 150x15 caption:"${imagetext}" $htmlout/images/${mediatype}posters/TEMP1${idLoop}.jpg +swap -gravity south -composite $htmlout/images/${mediatype}posters/TEMP2${idLoop}.jpg
+            convert -background '#0008' -fill white -gravity northwest -size 150x200 caption:"${name}" $htmlout/images/${mediatype}posters/TEMP2${idLoop}.jpg +swap -gravity north -composite $htmlout/images/${mediatype}posters/${idLoop}.jpg
+            if [ -f "$htmlout/images/${mediatype}posters/TEMP2${posterfile}" ]; then
+               rm $htmlout/images/${mediatype}posters/TEMP2${posterfile}
+            fi
+            if [ -f $htmlout/images/${mediatype}posters/TEMP1${posterfile} ]; then
+               rm $htmlout/images/${mediatype}posters/TEMP1${posterfile}
+            fi 
+            if [ -f $htmlout/images/${mediatype}posters/TEMP1${idLoop}.jpg ]; then
+               rm $htmlout/images/${mediatype}posters/TEMP1${idLoop}.jpg
+            fi 
+            if [ -f $htmlout/images/${mediatype}posters/TEMP2${idLoop}.jpg ]; then
+               rm $htmlout/images/${mediatype}posters/TEMP2${idLoop}.jpg
+            fi 
+
+
+            posterfile="${idLoop}.jpg"
+#            posterdimensions=`identify $htmlout/images/${mediatype}posters/TEMP${posterfile}| awk '{print $3}'`
+#            posterwidth=`echo $posterdimensions|awk -F"x" '{print $1}'`
+#            posterheight=`echo $posterdimensions|awk -F"x" '{print $2}'`
+#            convert $htmlout/images/${mediatype}posters/unknown.jpg -resize 150 $htmlout/images/${mediatype}posters/TEMP1${posterfile}
+#            marker=$((posterheight-25))
+#            convert $htmlout/images/${mediatype}posters/TEMP1${posterfile} -gravity southeast -draw "fill black rectangle 0,$marker $posterwidth,$posterheight" -fill white -annotate +5+5 "$imagetext" $htmlout/images/${mediatype}posters/${posterfile}
+
          fi
 
          #
@@ -238,6 +309,10 @@ for mediatype in $mediatypes; do
             filegenre=${filegenre::-3}
          fi
 
+         echo $posterfile $prevposterfile
+         if [ "$posterfile" == "$prevposterfile" ]; then
+            posterfile=${idLoop}.jpg
+         fi
          echo "<a href=\"$mediatype/$idLoop.html\">" >> $htmlout/$mediatype.html
          echo "<img width=150 src=\"images/${mediatype}posters/$posterfile\"></a>" >> $htmlout/$mediatype.html
 
