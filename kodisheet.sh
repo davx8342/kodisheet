@@ -115,7 +115,7 @@ echo "<html><head><title>genres</title>" >> $htmlout/genre/index.html
 echo "<link rel=\"stylesheet\" href=\"../kodisheet.css\" type=\"text/css\">" >> $htmlout/genre/index.html
 echo "</head><body>" >> $htmlout/genre/index.html
 echo "<p class=\"navigaton\">" >> $htmlout/genre/index.html
-echo "<font class=\"giantheading\">Genres</font>" >> $htmlout/genre/index.html
+echo "<font class=\"giantheading\">All Genres</font>" >> $htmlout/genre/index.html
 echo "<br /><br />" >> $htmlout/genre/index.html
 echo "<font class=\"heading\">$genrenav" >> $htmlout/genre/index.html
 echo "</font></p></body></html>" >> $htmlout/genre/index.html
@@ -147,12 +147,43 @@ for mediatype in $mediatypes; do
    echo "<p class=\"navigaton\">" >> $htmlout/$mediatype.html
    echo "<br /><br />" >> $htmlout/$mediatype.html
    echo "<font class=\"giantheading\">" >> $htmlout/$mediatype.html
-   echo "<a href=\"tvshow.html\">TV Shows</a> [$tvCount]" >> $htmlout/$mediatype.html
+
+   if [ "$mediatype" == "tvshow" ]; then
+      echo "TV Shows [$tvCount]" >> $htmlout/$mediatype.html
+   else
+      echo "<a href=\"tvshow.html\">TV Shows</a> [$tvCount]" >> $htmlout/$mediatype.html
+   fi
+
    echo " | " >> $htmlout/$mediatype.html
-   echo "<a href=\"movie.html\">Movies</a> [$movieCount]" >> $htmlout/$mediatype.html
+
+   if [ "$mediatype" == "movie" ]; then
+      echo "Movies [$movieCount]" >> $htmlout/$mediatype.html
+   else
+      echo "<a href=\"movie.html\">Movies</a> [$movieCount]" >> $htmlout/$mediatype.html
+   fi
+
    echo " | " >> $htmlout/$mediatype.html
-   echo "<a href=\"genre/index.html\">Genres</a>" >> $htmlout/$mediatype.html
-   echo "<br /><br /></font></p>" >> $htmlout/$mediatype.html
+
+   echo "<a href=\"genre/index.html\">All Genres</a>" >> $htmlout/$mediatype.html
+   echo "<br /><br /></font>" >> $htmlout/$mediatype.html
+
+   if [ "$mediatype" == "tvshow" ]; then
+      convert -size 130x25 xc:blue $htmlout/blue.jpg
+      convert -size 120x25 xc:orange $htmlout/orange.jpg
+      convert -font Arial -pointsize 18 -fill white -background blue -gravity center -size 130x25 caption:"no. of episodes" $htmlout/blue.jpg +swap -gravity west -composite $htmlout/episodes.jpg
+      convert -fill white -font Arial -pointsize 18 -background orange -gravity center -size 120x25 caption:"no. of seasons" $htmlout/orange.jpg +swap -gravity west -composite $htmlout/seasons.jpg
+      echo "<img src=\"episodes.jpg\"> <img src=\"seasons.jpg\">" >> $htmlout/$mediatype.html
+      if [ -f "$htmlout/blue.jpg" ]; then
+         rm $htmlout/blue.jpg
+      fi
+      if [ -f "$htmlout/orange.jpg" ]; then
+         rm $htmlout/orange.jpg
+      fi
+
+   fi
+
+
+   echo "</p>" >> $htmlout/$mediatype.html
 
    for idLoop in $idList; do
 
@@ -379,6 +410,8 @@ for mediatype in $mediatypes; do
          fi
       fi
    done
+
+   echo "</body></html>" >> $out
 
 done
 
