@@ -5,7 +5,7 @@
 #              your kodi sqlite files as source material.
 #
 # author:      davx8342@gmail.com
-# version:     0.1 ALPHA
+# version:     0.2 ALPHA
 #
 
 #
@@ -22,7 +22,7 @@ htmlout="/var/www/html/kodisheet"
 #
 # what we process, your options are tvshow or movie or both
 #
-mediatypes="movie tvshow"
+mediatypes="tvshow movie"
 
 if [ ! -d "$dbpath" ]; then
    echo You haven\'t created your db directory, you need to create this
@@ -122,8 +122,6 @@ echo "</font></p></body></html>" >> $htmlout/genre/index.html
 
 for mediatype in $mediatypes; do
 
-#   echo $mediatype
-
    if [ "$mediatype" == "tvshow" ]; then
       id="idShow"
       table="$mediatype"
@@ -155,13 +153,12 @@ for mediatype in $mediatypes; do
    echo " | " >> $htmlout/$mediatype.html
    echo "<a href=\"genre/index.html\">Genres</a>" >> $htmlout/$mediatype.html
    echo "<br /><br /></font></p>" >> $htmlout/$mediatype.html
+
    for idLoop in $idList; do
 
       name=`sqlite3 $dbpath/MyVideos107.db "SELECT c00 from $mediatype where $id=$idLoop"`
 
       if [ "$name" != "** 403: Series Not Permitted **" ]; then
-#      	echo halt
-#      fi
          plot=`sqlite3 $dbpath/MyVideos107.db "SELECT c01 from $mediatype where $id=$idLoop"`
 
          if [ "$mediatype" == "tvshow" ]; then
@@ -201,9 +198,8 @@ for mediatype in $mediatypes; do
             rating=`sqlite3 $dbpath/MyVideos107.db "SELECT c12 from $mediatype where $id=$idLoop"`
             runtime=`sqlite3 $dbpath/MyVideos107.db "SELECT c11 from $mediatype where $id=$idLoop"`
             director=`sqlite3 $dbpath/MyVideos107.db "SELECT c15 from $mediatype where $id=$idLoop"`
-            echo $name posterfile: $posterfile prevposterfile: $prevposterfile
+            echo $name 
          fi
-
 
          out="$htmlout/$mediatype/$idLoop.html"
          if [ -f "$out" ]; then
@@ -223,72 +219,45 @@ for mediatype in $mediatypes; do
             fi
          fi
 
-         posterurl=`sqlite3 $dbpath/MyVideos107.db "SELECT url from art where media_id=$idLoop and type='poster' and media_type=\"$mediatype\""`
-         if [ "$posterurl" != "" ]; then
-            posterfile=$(basename $posterurl)
+         posterfile="${idLoop}.jpg"
 
-            if [ "$posterfile" == "$prevposterfile" ]; then
-               posterfile=${idLoop}.jpg
-#               wget -O $htmlout/images/${mediatype}posters/${posterfile} $posterurl
-            fi
+         #
+         # if the poster art doesn't exist, do this rather complicated thing...
+         #
+         if [ ! -f "$htmlout/images/${mediatype}posters/${idLoop}.jpg" ]; then
+            posterurl=`sqlite3 $dbpath/MyVideos107.db "SELECT url from art where media_id=$idLoop and type='poster' and media_type=\"$mediatype\""`
 
-            if [ ! -f "$htmlout/images/${mediatype}posters/$posterfile" ]; then
-               wget -O $htmlout/images/${mediatype}posters/TEMP${posterfile} $posterurl
-
-              
-               if [ "$mediatype" == "movie" ]; then
-                  if [ "$width" == "" ]; then
-                     imagetext="$filetype"
-                  else
-                     imagetext="${width} / ${filetype}"
-                  fi
-                  convert $htmlout/images/${mediatype}posters/TEMP${posterfile} -resize 150 $htmlout/images/${mediatype}posters/TEMP1${posterfile}
-               posterwidth=`identify -format %w $htmlout/images/${mediatype}posters/TEMP1${posterfile}`
-#               posterheight=`identify -format %h $htmlout/images/${mediatype}posters/TEMP1${posterfile}`
-
-
-
-#                 marker=$((posterheight-25))
-#                 convert -background '#0008' -fill white -gravity center -size ${posterwidth}x30 caption:"$imagetext" $htmlout/images/${mediatype}posters/TEMP1${posterfile} +swap -gravity south -composite $htmlout/images/${mediatype}posters/${posterfile}
-convert -background '#0008' -fill white -gravity southeast -size ${posterwidth}x15 caption:"${imagetext}" $htmlout/images/${mediatype}posters/TEMP1${posterfile} +swap -gravity south -composite $htmlout/images/${mediatype}posters/${posterfile}
-
-               else
-                  convert $htmlout/images/${mediatype}posters/TEMP${posterfile} -resize 150 $htmlout/images/${mediatype}posters/${posterfile}
+            if [ "$posterurl" == "" ]; then
+               convert -size 150x221 xc:black $htmlout/images/${mediatype}posters/TEMP${idLoop}.jpg
+               convert -background '#0008' -fill white -gravity northwest -size 150x200 caption:"${name}" $htmlout/images/${mediatype}posters/TEMP${idLoop}.jpg +swap -gravity north -composite $htmlout/images/${mediatype}posters/${idLoop}.jpg
+               if [ -f "$htmlout/images/${mediatype}posters/TEMP${idLoop}.jpg" ]; then
+                  rm $htmlout/images/${mediatype}posters/TEMP${idLoop}.jpg
                fi
-                  if [ -f "$htmlout/images/${mediatype}posters/TEMP1${posterfile}" ]; then
-                     rm $htmlout/images/${mediatype}posters/TEMP1${posterfile}
-                  fi
-                  if [ -f $htmlout/images/${mediatype}posters/TEMP${posterfile} ]; then
-                     rm $htmlout/images/${mediatype}posters/TEMP${posterfile}
-                  fi
-               prevposterfile=${posterfile}
+            else
+               wget -O $htmlout/images/${mediatype}posters/${idLoop}.jpg $posterurl
             fi
-         else
-            cp $htmlout/images/${mediatype}posters/unknown.jpg $htmlout/images/${mediatype}posters/TEMP1${idLoop}.jpg
-            convert -background '#0008' -fill white -gravity southeast -size 150x15 caption:"${imagetext}" $htmlout/images/${mediatype}posters/TEMP1${idLoop}.jpg +swap -gravity south -composite $htmlout/images/${mediatype}posters/TEMP2${idLoop}.jpg
-            convert -background '#0008' -fill white -gravity northwest -size 150x200 caption:"${name}" $htmlout/images/${mediatype}posters/TEMP2${idLoop}.jpg +swap -gravity north -composite $htmlout/images/${mediatype}posters/${idLoop}.jpg
-            if [ -f "$htmlout/images/${mediatype}posters/TEMP2${posterfile}" ]; then
-               rm $htmlout/images/${mediatype}posters/TEMP2${posterfile}
+         
+     
+            convert $htmlout/images/${mediatype}posters/${posterfile} -resize 150 $htmlout/images/${mediatype}posters/TEMP0${posterfile}
+            if [ -f "$htmlout/images/${mediatype}posters/${posterfile}" ]; then
+               rm $htmlout/images/${mediatype}posters/${posterfile}
             fi
-            if [ -f $htmlout/images/${mediatype}posters/TEMP1${posterfile} ]; then
-               rm $htmlout/images/${mediatype}posters/TEMP1${posterfile}
-            fi 
-            if [ -f $htmlout/images/${mediatype}posters/TEMP1${idLoop}.jpg ]; then
-               rm $htmlout/images/${mediatype}posters/TEMP1${idLoop}.jpg
-            fi 
-            if [ -f $htmlout/images/${mediatype}posters/TEMP2${idLoop}.jpg ]; then
-               rm $htmlout/images/${mediatype}posters/TEMP2${idLoop}.jpg
-            fi 
+            mv $htmlout/images/${mediatype}posters/TEMP0${posterfile} $htmlout/images/${mediatype}posters/${posterfile}
+            posterwidth=`identify -format %w $htmlout/images/${mediatype}posters/${posterfile}`
 
+            if [ "$mediatype" == "movie" ]; then
+               if [ "$width" == "" ]; then
+                  imagetext="$filetype"
+               else
+                  imagetext="${width} | ${filetype}"
+               fi
+               convert -background '#0008' -fill white -gravity southeast -size ${posterwidth}x15 caption:"${imagetext}" $htmlout/images/${mediatype}posters/${posterfile} +swap -gravity south -composite $htmlout/images/${mediatype}posters/TEMP0${posterfile}
 
-            posterfile="${idLoop}.jpg"
-#            posterdimensions=`identify $htmlout/images/${mediatype}posters/TEMP${posterfile}| awk '{print $3}'`
-#            posterwidth=`echo $posterdimensions|awk -F"x" '{print $1}'`
-#            posterheight=`echo $posterdimensions|awk -F"x" '{print $2}'`
-#            convert $htmlout/images/${mediatype}posters/unknown.jpg -resize 150 $htmlout/images/${mediatype}posters/TEMP1${posterfile}
-#            marker=$((posterheight-25))
-#            convert $htmlout/images/${mediatype}posters/TEMP1${posterfile} -gravity southeast -draw "fill black rectangle 0,$marker $posterwidth,$posterheight" -fill white -annotate +5+5 "$imagetext" $htmlout/images/${mediatype}posters/${posterfile}
-
+               mv $htmlout/images/${mediatype}posters/TEMP0${posterfile} $htmlout/images/${mediatype}posters/${posterfile}
+               if [ -f "$htmlout/images/${mediatype}posters/TEMP0${posterfile}" ]; then
+                  rm $htmlout/images/${mediatype}posters/TEMP0${posterfile}
+               fi
+            fi
          fi
 
          #
@@ -299,7 +268,6 @@ convert -background '#0008' -fill white -gravity southeast -size ${posterwidth}x
          filegenre=""
          for genre in $genres; do
             genrename=`sqlite3 $dbpath/MyVideos107.db "SELECT name from genre where genre_id=$genre"`
-#         echo $genrename
             filegenre="<a href=\"../genre/$genre.html\">$genrename</a> / $filegenre"
             echo "<a href=\"../$mediatype/$idLoop.html\">" >> $htmlout/genre/$genre.$mediatype
             echo "<img width=150 src=\"../images/${mediatype}posters/$posterfile\"></a>" >> $htmlout/genre/$genre.$mediatype
@@ -309,10 +277,6 @@ convert -background '#0008' -fill white -gravity southeast -size ${posterwidth}x
             filegenre=${filegenre::-3}
          fi
 
-         echo $posterfile $prevposterfile
-         if [ "$posterfile" == "$prevposterfile" ]; then
-            posterfile=${idLoop}.jpg
-         fi
          echo "<a href=\"$mediatype/$idLoop.html\">" >> $htmlout/$mediatype.html
          echo "<img width=150 src=\"images/${mediatype}posters/$posterfile\"></a>" >> $htmlout/$mediatype.html
 
@@ -356,6 +320,18 @@ convert -background '#0008' -fill white -gravity southeast -size ${posterwidth}x
          if [ "$mediatype" == "tvshow" ]; then
 
             seasons=`sqlite3 $dbpath/MyVideos107.db "SELECT idSeason from seasons where idShow=$idLoop"`
+            seasonsCount="0"
+
+#            convert -font Arial -pointsize 18 -background 'orange' -fill white -gravity center -size 30x25 caption:"$seasonsCount"  $htmlout/images/${mediatype}posters/${posterfile} +swap -gravity northeast -composite $htmlout/images/${mediatype}posters/TEMP${posterfile}
+
+            episodeCount=`sqlite3 $dbpath/MyVideos107.db "SELECT count() from episode where idShow=$idLoop"`
+
+            convert -font Arial -pointsize 18 -background 'blue' -fill white -gravity center -size 30x25 caption:"$episodeCount" $htmlout/images/${mediatype}posters/${posterfile} +swap -gravity northwest -composite $htmlout/images/${mediatype}posters/TEMP0${posterfile}
+
+            if [ -f "$htmlout/images/${mediatype}posters/${posterfile}" ]; then
+               rm $htmlout/images/${mediatype}posters/${posterfile}
+            fi
+
             for season in $seasons; do
                count=`sqlite3 $dbpath/MyVideos107.db "SELECT count() from episode where idShow=$idLoop and idSeason=$season"`
 
@@ -368,6 +344,7 @@ convert -background '#0008' -fill white -gravity southeast -size ${posterwidth}x
                   echo "<br /><br />" >> $out
 
                   episodes=`sqlite3 $dbpath/MyVideos107.db "select idEpisode from episode where idShow=$idLoop and idSeason=$season"`
+                  seasonsCount=$((seasonsCount+1))
 
                   for episode in $episodes; do
                      episodeNo=`sqlite3 $dbpath/MyVideos107.db "SELECT c13 from episode where idShow=$idLoop and idSeason=$season and idEpisode=$episode"`
@@ -377,11 +354,19 @@ convert -background '#0008' -fill white -gravity southeast -size ${posterwidth}x
                   echo "</p>" >> $out
                fi
             done
+            convert -font Arial -pointsize 18 -background 'orange' -fill white -gravity center -size 30x25 caption:"$seasonsCount"  $htmlout/images/${mediatype}posters/TEMP0${posterfile} +swap -gravity northeast -composite $htmlout/images/${mediatype}posters/${posterfile}
+            if [ -f "$htmlout/images/${mediatype}posters/TEMP0${posterfile}" ]; then
+               rm $htmlout/images/${mediatype}posters/TEMP0${posterfile}
+            fi
+
             echo "</td></tr></table></center>" >> $out
          fi
-   fi
-      done
+      fi
+   done
 
+   #
+   # 
+   #
    genres=`sqlite3 $dbpath/MyVideos107.db "SELECT genre_id from genre"`
    for genre in $genres; do
       if [ -f "$htmlout/genre/$genre.html" ]; then
@@ -394,11 +379,18 @@ convert -background '#0008' -fill white -gravity southeast -size ${posterwidth}x
          fi
       fi
    done
+
 done
 
+#
+# complete the HTML footers for all the genre files
+#
 genres=`sqlite3 $dbpath/MyVideos107.db "SELECT genre_id from genre"`
 for genre in $genres; do
    if [ -f "$htmlout/genre/$genre.html" ]; then
       echo "</body></html>" >> $htmlout/genre/$genre.html
    fi
 done
+
+
+
