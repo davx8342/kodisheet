@@ -245,6 +245,7 @@ for mediatype in $mediatypes; do
             studio=`sqlite3 $dbpath/MyVideos107.db "SELECT c18 from $mediatype where $id=$idLoop"`
             rating=`sqlite3 $dbpath/MyVideos107.db "SELECT c12 from $mediatype where $id=$idLoop"`
             runtime=`sqlite3 $dbpath/MyVideos107.db "SELECT c11 from $mediatype where $id=$idLoop"`
+            runtime=`echo - | awk -v "S=$runtime" '{printf "%dh%dm%ds",S/(60*60),S%(60*60)/60,S%60}'`
             director=`sqlite3 $dbpath/MyVideos107.db "SELECT c15 from $mediatype where $id=$idLoop"`
             echo $name 
          fi
@@ -514,6 +515,7 @@ for datestamp in $datestamps; do
          studio=`sqlite3 $dbpath/MyVideos107.db "SELECT c18 from movie where idMovie=$idMovie"`
          rating=`sqlite3 $dbpath/MyVideos107.db "SELECT c12 from movie where idMovie=$idMovie"`
          runtime=`sqlite3 $dbpath/MyVideos107.db "SELECT c11 from movie where idMovie=$idMovie"`
+         runtime=`echo - | awk -v "S=$runtime" '{printf "%dh%dm%ds",S/(60*60),S%(60*60)/60,S%60}'`
          director=`sqlite3 $dbpath/MyVideos107.db "SELECT c15 from movie where idMovie=$idMovie"`
 
          echo "<a href=\"movie/$idMovie.html\">" >> $htmlout/index.html
