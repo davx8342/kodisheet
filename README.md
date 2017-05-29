@@ -1,6 +1,6 @@
 # kodisheet
 
-Description: create a contact sheet using thumbnails of your tv/movies you have in your kodi library
+Creates a contact sheet using thumbnails of tv/movies you have in your kodi library
 
 # This is a bash script, designed to run on linux
 
