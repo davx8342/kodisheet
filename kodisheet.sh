@@ -365,6 +365,12 @@ for mediatype in $mediatypes; do
          echo "$plot" >> $out
          echo "</p>" >> $out
 
+         if [ "$mediatype" == "movie" ]; then
+            echo "<p class=\"footer\">$footer<br /></p>" >> $out
+            echo "</td></tr></table></center>" >> $out
+            echo "</p></body></html>" >> $out
+         fi
+
          if [ "$mediatype" == "tvshow" ]; then
 
             seasons=`sqlite3 $dbpath/MyVideos107.db "SELECT idSeason from seasons where idShow=$idLoop"`
@@ -447,14 +453,15 @@ done
 # index page
 #
 
-touch /var/www/html/kodisheet/index.html
-if [ -f "/var/www/html/kodisheet/index.html" ]; then
-   rm /var/www/html/kodisheet/index.html
+if [ -f "$htmlout/index.html" ]; then
+   rm $htmlout/index.html
 fi
+touch $htmlout/index.html
 
-if [ -f "/var/www/html/kodisheet/recent.html" ]; then
-   rm /var/www/html/kodisheet/recent.html
+if [ -f "$htmlout/recent.html" ]; then
+   rm $htmlout/recent.html
 fi
+touch $htmlout/recent.html
 
 datestamps=""
 
@@ -479,7 +486,6 @@ echo " | " >> $htmlout/index.html
 echo "<a href=\"recent.html\">Last $lastDays days</a>" >> $htmlout/index.html
 echo "<br /><br /></font>" >> $htmlout/index.html
 
-echo "<br /><br /></font>" >> $htmlout/index.html
 echo "<font class=\"heading\">Recently added movies</font>" >> $htmlout/index.html
 echo "</font><br /><br />" >> $htmlout/index.html
 
