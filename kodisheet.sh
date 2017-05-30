@@ -414,7 +414,7 @@ for mediatype in $mediatypes; do
             filegenre=${filegenre::-3}
          fi
 
-         echo "<a href=\"$mediatype/$idLoop.html\">" >> $pageOut
+         echo "<a href=\"$idLoop.html\">" >> $pageOut
          echo "<img width=150 src=\"../images/${mediatype}posters/$posterfile\"></a>" >> $pageOut
 
          echo "<html><head><title>$name</title>" >> $out
