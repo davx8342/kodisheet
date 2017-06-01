@@ -5,9 +5,9 @@
 #              your kodi sqlite files as source material.
 #
 # author:      davx8342@gmail.com
-# version:     0.4 ALPHA
+# version:     0.5 ALPHA
 #
-VERSION="0.4 ALPHA"
+VERSION="0.5 ALPHA"
 
 #
 # path to your kodi db files
@@ -54,7 +54,7 @@ checkdirs="$htmlout/images $htmlout/images/tvshowposters $htmlout/images/moviepo
 #
 # delete these files if they exist already, just saves repeating code later
 #
-deletefiles="$htmlout/index.html $htmlout/recent.html"
+deletefiles="$htmlout/index.html $htmlout/recent.html $htmlout/genre/index.html"
 for file in $deletefiles; do
    if [ -f "$file" ]; then
       rm "$file"
@@ -74,9 +74,6 @@ movieCount=`sqlite3 $dbpath/MyVideos107.db "SELECT count() from movie"`
 tvCount=`sqlite3 $dbpath/MyVideos107.db "SELECT count() from tvshow"`
 let moviePages=($movieCount+$perPage-1)/$perPage
 let tvPages=($tvCount+$perPage-1)/$perPage
-
-#echo movies will have $moviePages pages
-#echo tv will have $tvPages pages
 
 #
 # remove the genre index
@@ -101,57 +98,6 @@ convert -size 150x221 xc:black $htmlout/images/movieposters/unknown.jpg
 
 
 
-genres=`sqlite3 $dbpath/MyVideos107.db "SELECT genre_id from genre"`
-genrenav=""
-
-for genre in $genres; do
-   name=`sqlite3 $dbpath/MyVideos107.db "SELECT name from genre where genre_id=$genre"`
-   out="$htmlout/genre/$genre.html"
-
-   #
-   # count to see if we have media in this genre, if we don't we exclude it
-   #
-   count=`sqlite3 $dbpath/MyVideos107.db "SELECT count() from genre_link where genre_id=$genre"`
-   if [ "$count" != "0" ]; then
-      genrenav="<a href=\"$genre.html\">$name</a> | $genrenav"
-
-      if [ -f "$out" ]; then
-         rm "$out"
-      fi
-      touch "$out"
-
-      echo "<html><head><title>$name</title>" >> $out
-      echo "<link rel=\"stylesheet\" href=\"../kodisheet.css\" type=\"text/css\">" >> $out
-      echo "</head><body>" >> $out
-      echo "<p class=\"navigaton\">" >> $out
-      echo "<font class=\"giantheading\">Genre: $name</font>" >> $out
-      echo "<br /><br />" >> $out
-   fi
-done
-
-#
-# remove the last 3 digits, basically ' | '
-#
-genrenav=${genrenav::-3}
-
-for genre in $genres; do
-   if [ -f "$htmlout/genre/$genre.html" ]; then
-      echo "<font class=\"heading\">" >> $htmlout/genre/$genre.html
-      echo "$genrenav" >> $htmlout/genre/$genre.html
-      echo "</font>" >> $htmlout/genre/$genre.html
-   fi
-done
-
-echo "<html><head><title>genres</title>" >> $htmlout/genre/index.html
-echo "<link rel=\"stylesheet\" href=\"../kodisheet.css\" type=\"text/css\">" >> $htmlout/genre/index.html
-echo "</head><body>" >> $htmlout/genre/index.html
-echo "<p class=\"navigaton\">" >> $htmlout/genre/index.html
-echo "<font class=\"giantheading\">All Genres</font>" >> $htmlout/genre/index.html
-echo "<br /><br />" >> $htmlout/genre/index.html
-echo "<font class=\"heading\">$genrenav" >> $htmlout/genre/index.html
-echo "</font></p></body></html>" >> $htmlout/genre/index.html
-
-
 for mediatype in $mediatypes; do
 
    if [ "$mediatype" == "tvshow" ]; then
@@ -174,50 +120,6 @@ for mediatype in $mediatypes; do
       rm "$htmlout/$mediatype.html"
    fi
    touch "$htmlout/$mediatype.html"
-
-
-
-
-#   echo "<html><head><title>$indextitle</title>" >> $htmlout/$mediatype.html
-#   echo "<link rel=\"stylesheet\" href=\"kodisheet.css\" type=\"text/css\">" >> $htmlout/$mediatype.html
-#   echo "</head><body>" >> $htmlout/$mediatype.html
-#   echo "<p class=\"navigaton\">" >> $htmlout/$mediatype.html
-#   echo "<br /><br />" >> $htmlout/$mediatype.html
-#   echo "<font class=\"giantheading\">" >> $htmlout/$mediatype.html
-#   echo "<a href=\"../index.html\">Home</a>" >> $htmlout/$mediatype.html
-#   echo " | " >> $htmlout/$mediatype.html
-#   if [ "$mediatype" == "tvshow" ]; then
-#      echo "TV Shows [$tvCount]" >> $htmlout/$mediatype.html
-#   else
-#      echo "<a href=\"tvshow.html\">TV Shows</a> [$tvCount]" >> $htmlout/$mediatype.html
-#   fi
-#   echo " | " >> $htmlout/$mediatype.html
-#   if [ "$mediatype" == "movie" ]; then
-#      echo "Movies [$movieCount]" >> $htmlout/$mediatype.html
-#   else
-#      echo "<a href=\"movie.html\">Movies</a> [$movieCount]" >> $htmlout/$mediatype.html
-#   fi
-#   echo " | " >> $htmlout/$mediatype.html
-#   echo "<a href=\"genre/index.html\">All Genres</a>" >> $htmlout/$mediatype.html
-#   echo " | " >> $htmlout/$mediatype.html
-#   echo "<a href=\"recent.html\">Last $lastDays days</a>" >> $htmlout/$mediatype.html
-#   echo "<br /><br /></font>" >> $htmlout/$mediatype.html
-#
-#   if [ "$mediatype" == "tvshow" ]; then
-#      convert -size 130x25 xc:blue $htmlout/blue.jpg
-#      convert -size 120x25 xc:orange $htmlout/orange.jpg
-#      convert -font Arial -pointsize 18 -fill white -background blue -gravity center -size 130x25 caption:"no. of episodes" $htmlout/blue.jpg +swap -gravity west -composite $htmlout/episodes.jpg
-#      convert -fill white -font Arial -pointsize 18 -background orange -gravity center -size 120x25 caption:"no. of seasons" $htmlout/orange.jpg +swap -gravity west -composite $htmlout/seasons.jpg
-#      echo "<img src=\"episodes.jpg\"> <img src=\"seasons.jpg\">" >> $htmlout/$mediatype.html
-#      if [ -f "$htmlout/blue.jpg" ]; then
-#         rm "$htmlout/blue.jpg"
-#      fi
-#      if [ -f "$htmlout/orange.jpg" ]; then
-#         rm "$htmlout/orange.jpg"
-#      fi
-#
-#   fi
-#   echo "</p>" >> $htmlout/$mediatype.html
 
    pageCounter="0"
    page="1"
@@ -252,7 +154,7 @@ for mediatype in $mediatypes; do
             echo "<a href=\"../movie/index.1.html\">Movies</a> [$movieCount]" >> $pageOut
          fi
          echo " | " >> $pageOut
-         echo "<a href=\"../genre/index.html\">All Genres</a>" >> $pageOut
+         echo "<a href=\"../genre/index.html\">Genres</a>" >> $pageOut
          echo " | " >> $pageOut
          echo "<a href=\"../recent.html\">Last $lastDays days</a>" >> $pageOut
          echo "<br /><br /></font>" >> $pageOut
@@ -397,22 +299,10 @@ for mediatype in $mediatypes; do
             fi
          fi
 
-         #
-         # genres
-         #
-         genres=`sqlite3 $dbpath/MyVideos107.db "SELECT genre_id from genre_link where media_id=$idLoop and media_type=\"$mediatype\""`
 
-         filegenre=""
-         for genre in $genres; do
-            genrename=`sqlite3 $dbpath/MyVideos107.db "SELECT name from genre where genre_id=$genre"`
-            filegenre="<a href=\"../genre/$genre.html\">$genrename</a> / $filegenre"
-            echo "<a href=\"../$mediatype/$idLoop.html\">" >> $htmlout/genre/$genre.$mediatype
-            echo "<img width=150 src=\"../images/${mediatype}posters/$posterfile\"></a>" >> $htmlout/genre/$genre.$mediatype
-         done
-
-         if [ "$filegenre" != "" ]; then 
-            filegenre=${filegenre::-3}
-         fi
+#         if [ "$filegenre" != "" ]; then 
+#            filegenre=${filegenre::-3}
+#         fi
 
          echo "<a href=\"$idLoop.html\">" >> $pageOut
          echo "<img width=150 src=\"../images/${mediatype}posters/$posterfile\"></a>" >> $pageOut
@@ -515,33 +405,7 @@ for mediatype in $mediatypes; do
       fi
    done
 
-   #
-   # 
-   #
-   genres=`sqlite3 $dbpath/MyVideos107.db "SELECT genre_id from genre"`
-   for genre in $genres; do
-      if [ -f "$htmlout/genre/$genre.html" ]; then
-         genrename=`sqlite3 $dbpath/MyVideos107.db "SELECT name from genre where genre_id=$genre"`
-         if [ -f "$htmlout/genre/$genre.$mediatype" ]; then
-            echo "<p class="artwork"><font class=\"giantheading\">$indextitle</font><br /><br />" >> $htmlout/genre/$genre.html
-            cat $htmlout/genre/$genre.$mediatype >> $htmlout/genre/$genre.html
-            echo "<br /><br /></p>" >> $htmlout/genre/$genre.html
-            rm "$htmlout/genre/$genre.$mediatype"
-         fi
-      fi
-   done
 done
-
-#
-# complete the HTML footers for all the genre files
-#
-genres=`sqlite3 $dbpath/MyVideos107.db "SELECT genre_id from genre"`
-for genre in $genres; do
-   if [ -f "$htmlout/genre/$genre.html" ]; then
-      echo "</body></html>" >> $htmlout/genre/$genre.html
-   fi
-done
-
 
 #
 # index page
@@ -565,7 +429,7 @@ echo "<a href=\"tvshow/index.1.html\">TV Shows</a> [$tvCount]" >> $htmlout/index
 echo " | " >> $htmlout/index.html
 echo "<a href=\"movie/index.1.html\">Movies</a> [$movieCount]" >> $htmlout/index.html
 echo " | " >> $htmlout/index.html
-echo "<a href=\"genre/index.html\">All Genres</a>" >> $htmlout/index.html
+echo "<a href=\"genre/index.html\">Genres</a>" >> $htmlout/index.html
 echo " | " >> $htmlout/index.html
 echo "<a href=\"recent.html\">Last $lastDays days</a>" >> $htmlout/index.html
 echo "<br /><br /></font>" >> $htmlout/index.html
@@ -699,4 +563,132 @@ echo "</p><br /></body></html>" >> $htmlout/index.html
 
 echo "<tr><td colspan=2><br /><p class=\"footer\">$footer</font></br ></td></tr>" >> $htmlout/recent.html
 echo "</center></body></html>" >> $htmlout/recent.html
+
+genres=`sqlite3 $dbpath/MyVideos107.db "SELECT genre_id from genre"`
+
+#
+# first pass to build the genre navbar
+#
+for genre in $genres; do
+   name=`sqlite3 $dbpath/MyVideos107.db "SELECT name from genre where genre_id=$genre"`
+   allcount=`sqlite3 $dbpath/MyVideos107.db "SELECT count() from genre_link where genre_id=$genre"`
+   if [ "$allcount" != "0" ]; then
+      allgenre="$allgenre $genre:$allcount"
+   fi
+   tvcount=`sqlite3 $dbpath/MyVideos107.db "SELECT count() from genre_link where genre_id=$genre and media_type=\"tvshow\""`
+   if [ "$tvcount" != "0" ]; then
+      tvgenre="$tvgenre $genre:$tvcount"
+   fi
+   moviecount=`sqlite3 $dbpath/MyVideos107.db "SELECT count() from genre_link where genre_id=$genre and media_type=\"movie\""`
+   if [ "$moviecount" != "0" ]; then
+      moviegenre="$moviegenre $genre:$moviecount"
+   fi
+   #
+   # cover all bases, remove if exists
+   #
+   if [ -f "$htmlout/genre/all.$genre.html" ]; then
+      rm "$htmlout/genre/all.$genre.html"
+   fi
+   if [ -f "$htmlout/genre/tvshow.$genre.html" ]; then
+      rm "$htmlout/genre/tvshow.$genre.html"
+   fi
+   if [ -f "$htmlout/genre/movie.$genre.html" ]; then
+      rm "$htmlout/genre/movie.$genre.html"
+   fi
+
+done
+
+echo "<html><head><title>kodisheet - Genre $name</title>" >> $htmlout/genre/index.html
+echo "<link rel=\"stylesheet\" href=\"../kodisheet.css\" type=\"text/css\">" >> $htmlout/genre/index.html
+echo "</head><body>" >> $htmlout/genre/index.html
+genrebar="<font class=\"heading\">"
+for splitgen in $allgenre; do
+   disgen=`echo $splitgen|awk -F":" '{print $1}'`
+   discount=`echo $splitgen|awk -F":" '{print $2}'`
+   disname=`sqlite3 $dbpath/MyVideos107.db "SELECT name from genre where genre_id=$disgen"`
+   genrebar="$genrebar <a href=\"all.$disgen.html\">$disname</a> [$discount] | "
+done
+genrebar=${genrebar::-3}
+echo "$genrebar</font>" >> $htmlout/genre/index.html
+echo "</p><p class=\"footer\">$footer" >> $htmlout/genre/index.html
+echo "</body></html>" >> $htmlout/genre/index.html
+
+#
+# second pass
+#
+for genre in $genres; do
+   #
+   # html headings
+   #
+   filters="all tvshow movie"
+   for filter in $filters; do
+      echo "<html><head><title>kodisheet - Genre $name</title>" >> $htmlout/genre/$filter.$genre.html
+      echo "<link rel=\"stylesheet\" href=\"../kodisheet.css\" type=\"text/css\">" >> $htmlout/genre/$filter.$genre.html
+      echo "</head><body>" >> $htmlout/genre/$filter.$genre.html
+
+      #
+      # nav
+      #
+      echo "<font class=\"heading\">Filter: " >> $htmlout/genre/$filter.$genre.html
+      if [ "$filter" == "all" ]; then
+         echo "All" >> $htmlout/genre/$filter.$genre.html
+         genrelist=$allgenre
+      else
+         echo "<a href=\"all.$genre.html\">All</a>" >> $htmlout/genre/$filter.$genre.html
+      fi
+      echo " | " >> $htmlout/genre/$filter.$genre.html
+      if [ "$filter" == "movie" ]; then
+         echo "Movies" >> $htmlout/genre/$filter.$genre.html
+         genrelist=$moviegenre
+      else
+         echo "<a href=\"movie.$genre.html\">Movies</a>" >> $htmlout/genre/$filter.$genre.html
+      fi
+      echo " | " >> $htmlout/genre/$filter.$genre.html
+      if [ "$filter" == "tvshow" ]; then
+         echo "TV" >> $htmlout/genre/$filter.$genre.html
+         genrelist=$tvgenre
+      else
+         echo "<a href=\"tvshow.$genre.html\">TV</a>" >> $htmlout/genre/$filter.$genre.html
+      fi
+     
+      echo "</font><br /><br />" >> $htmlout/genre/$filter.$genre.html
+      echo "<font class=\"heading\">Genre: </font>" >> $htmlout/genre/$filter.$genre.html
+
+
+      genrebar="<font class=\"heading\">"
+      for splitgen in $genrelist; do
+         disgen=`echo $splitgen|awk -F":" '{print $1}'`
+         discount=`echo $splitgen|awk -F":" '{print $2}'`
+         disname=`sqlite3 $dbpath/MyVideos107.db "SELECT name from genre where genre_id=$disgen"`
+#         echo $navgen $disgen $disname $discount
+         if [ "$disgen" == "$genre" ]; then
+            genrebar="$genrebar $disname [$discount] | "
+         else
+            genrebar="$genrebar <a href=\"$filter.$disgen.html\">$disname</a> [$discount] | " 
+         fi
+      done
+      genrebar=${genrebar::-3}
+      echo "$genrebar</font>" >> $htmlout/genre/$filter.$genre.html
+
+      echo "<br /><br />" >> $htmlout/genre/$filter.$genre.html
+
+      if [ "$filter" == "tvshow" ] || [ "$filter" == "all" ]; then
+         tvlist=`sqlite3 $dbpath/MyVideos107.db "SELECT media_id from genre_link where genre_id=$genre and media_type=\"tvshow\""`
+         for show in $tvlist; do
+            echo "<a href=\"../tvshow/$show.html\">" >> $htmlout/genre/$filter.$genre.html
+            echo "<img src=\"../images/tvshowposters/$show.jpg\"></a>" >> $htmlout/genre/$filter.$genre.html
+         done
+      fi
+      if [ "$filter" == "movie" ] || [ "$filter" == "all" ]; then
+         movielist=`sqlite3 $dbpath/MyVideos107.db "SELECT media_id from genre_link where genre_id=$genre and media_type=\"movie\""`
+         for movie in $movielist; do
+            echo "<a href=\"../movie/$movie.html\">" >> $htmlout/genre/$filter.$genre.html
+            echo "<img src=\"../images/movieposters/$movie.jpg\"></a>" >> $htmlout/genre/$filter.$genre.html
+         done
+      fi
+
+      echo "<p class=\"footer\">$footer</p>" >> $htmlout/genre/$filter.$genre.html
+      echo "</body></html>" >> $htmlout/genre/$filter.$genre.html
+   done
+done
 
