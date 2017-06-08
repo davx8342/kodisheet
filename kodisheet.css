@@ -1,0 +1,119 @@
+
+p.navigation {
+   font-family: Verdana;
+   font-size: 25px;
+   font-weight: bold;
+}
+
+p.showtitle {
+   font-family: Verdana;
+   font-size: 20px;
+   font-weight: bold;
+}
+
+p.footer {
+   font-family: Verdana;
+   font-size: 14px;
+   font-weight: bold;
+   color: white;
+}
+
+font.heading {
+   font-family: Verdana;
+   font-size: 18px;
+   font-weight: bold;
+}
+
+p.seasonnav {
+   font-family: Verdana;
+   font-size: 18px;
+   font-weight: bold;
+}
+
+font.pagenav {
+   font-family: Verdana;
+   font-size: 18px;
+}
+
+font.boldpagenav {
+   font-family: Verdana;
+   font-size: 18px;
+   font-weight: bold;
+}
+
+font.bodytext {
+   font-family: Verdana;
+   font-size: 14px;
+}
+
+font.giantheading {
+   font-family: Verdana;
+   font-size: 24px;
+   font-weight: bold;
+}
+
+p.synopsis {
+   font-family: Verdana;
+   font-size: 14px;
+}
+
+p.details {
+   font-family: Verdana;
+   font-size: 12px;
+}
+
+p.seasonlist {
+   font-family: Verdana;
+   font-size: 14px;
+}
+
+p.cast {
+   font-family: Verdana;
+   font-size: 14px;
+}
+
+/*
+
+https://www.w3schools.com/css/tryit.asp?filename=trycss_navbar_horizontal_black_right
+
+*/
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+}
+
+li a:hover:not(.active) {
+    background-color: #111;
+}
+
+.active {
+    background-color: #4CAF50;
+}
+
+p.footer a {
+    color: white;
+}
+
+.footer {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 14px 16px;
+  background-color: #333;
+  text-align: left;
+}
+
