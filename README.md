@@ -26,6 +26,8 @@ You can just apt-get or yum install the first two. The kodi database files you'l
 
 Download kodisheet.sh, create a 'db' folder, in which you'll place your Kodi database files. Then create an output directory where you want to store the output files.
 
+Edit kodisheet.sh and change htmlout to the directory you want the output html and images to reside in. Then copy the kodisheet.css into that same directory.
+
 Then just ./kodisheet.sh and you should get some output to screen as it intergates the kodi data files and downloads cover artwork.
 
 # Issues
