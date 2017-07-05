@@ -24,6 +24,14 @@ font.heading {
    font-weight: bold;
 }
 
+font.menuheading {
+   color: white;
+   font-family: Verdana;
+   font-size: 18px;
+   font-weight: bold;
+   text-align: center;
+}
+
 p.seasonnav {
    font-family: Verdana;
    font-size: 18px;
@@ -51,6 +59,7 @@ font.giantheading {
    font-size: 24px;
    font-weight: bold;
 }
+
 
 p.synopsis {
    font-family: Verdana;
@@ -87,21 +96,14 @@ ul {
 
 li {
     float: left;
-}
-
-li a {
-    display: block;
-    color: white;
-    text-align: center;
     padding: 14px 16px;
 }
 
-li a:hover:not(.active) {
-    background-color: #111;
-}
-
-.active {
-    background-color: #4CAF50;
+li a {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    font-family: verdana;
 }
 
 p.footer a {

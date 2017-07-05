@@ -6,7 +6,7 @@
 #
 # author:      davx8342@gmail.com
 #
-VERSION="0.7 RC1"
+VERSION="0.9 RC3"
 
 #
 # path to your kodi db files
@@ -146,7 +146,7 @@ for mediatype in $mediatypes; do
          echo "<link rel=\"stylesheet\" href=\"../kodisheet.css\" type=\"text/css\">" >> "$pageOut"
          echo "</head><body>" >> "$pageOut"
          echo "<p class=\"navigaton\">" >> "$pageOut"
-         echo "<font class=\"heading\">" >> "$pageOut"
+         echo "<font class=\"menuheading\">" >> "$pageOut"
          echo "<ul>" >> "$pageOut"
          echo "<li><a href=\"../index.html\">Home</a></li>" >> "$pageOut"
          if [ "$mediatype" == "tvshow" ]; then
@@ -466,7 +466,7 @@ echo "<html><head><title>Kodisheet $VERSION</title>" >> $htmlout/index.html
 echo "<link rel=\"stylesheet\" href=\"kodisheet.css\" type=\"text/css\">" >> $htmlout/index.html
 echo "</head><body>" >> $htmlout/index.html
 echo "<p class=\"navigation\">" >> $htmlout/index.html
-echo "<font class=\"heading\"><ul><li>" >> $htmlout/index.html
+echo "<font class=\"menuheading\"><ul><li>" >> $htmlout/index.html
 echo "<a href=\"#home\">Home</a></li>" >> $htmlout/index.html
 
 echo "<li><a href=\"tvshow/index.1.html\">TV Shows [$tvCount]</a></li>" >> $htmlout/index.html
@@ -482,20 +482,13 @@ echo "<html><head><title>Recently Added</title>" >> "$htmlout/recent.html"
 echo "<link rel=\"stylesheet\" href=\"kodisheet.css\" type=\"text/css\">" >> "$htmlout/recent.html"
 echo "</head>" >> "$htmlout/recent.html"
 echo "<body><center>" >> "$htmlout/recent.html"
+echo "<font class=\"menuheading\">" >> "$htmlout/recent.html"
 echo "<ul>" >> "$htmlout/recent.html"
-echo "<li><a href=\"../index.html\">Home</a></li>" >> "$htmlout/recent.html"
-if [ "$mediatype" == "tvshow" ]; then
-   echo "<li><a href=\"#tvshow\">TV Shows [$tvCount]</a></li>" >> "$htmlout/recent.html"
-else
-   echo "<li><a href=\"../tvshow/index.1.html\">TV Shows [$tvCount]</a></li>" >>"$htmlout/recent.html"
-fi
-if [ "$mediatype" == "movie" ]; then
-   echo "<li><a href=\"#movies\">Movies [$movieCount]</a></li>" >> "$htmlout/recent.html"
-else
-   echo "<li><a href=\"../movie/index.1.html\">Movies [$movieCount]</a></li>" >>"$htmlout/recent.html"
-fi
-echo "<li><a href=\"../genre/index.html\">Genres</a></li>" >> "$htmlout/recent.html"
-echo "<li><a href=\"../recent.html\">Last $lastDays days</a></li>" >> "$htmlout/recent.html"
+echo "<li><a href=\"index.html\">Home</a></li>" >> "$htmlout/recent.html"
+echo "<li><a href=\"tvshow/index.1.html\">TV Shows [$tvCount]</a></li>" >>"$htmlout/recent.html"
+echo "<li><a href=\"movie/index.1.html\">Movies [$movieCount]</a></li>" >> "$htmlout/recent.html"
+echo "<li><a href=\"genre/index.html\">Genres</a></li>" >> "$htmlout/recent.html"
+echo "<li>Last $lastDays days</li>" >> "$htmlout/recent.html"
 echo "</ul></font><br />" >> "$htmlout/recent.html"
 echo "<table width=500>" >> "$htmlout/recent.html"
 echo "<tr><td colspan=2><br /><font class=\"giantheading\">Recently added movies</font><br /><br /></td></tr>" >> "$htmlout/recent.html"
@@ -659,7 +652,7 @@ echo "<html><head><title>kodisheet - Genre $name</title>" >> "$htmlout/genre/ind
 echo "<link rel=\"stylesheet\" href=\"../kodisheet.css\" type=\"text/css\">" >> "$htmlout/genre/index.html"
 echo "</head><body>" >> "$htmlout/genre/index.html"
 echo "<p class=\"navigation\">" >> "$htmlout/genre/index.html"
-echo "<font class=\"heading\"><ul><li>" >> "$htmlout/genre/index.html"
+echo "<font class=\"menuheading\"><ul><li>" >> "$htmlout/genre/index.html"
 echo "<a href=\"../index.html\">Home</a></li>" >> "$htmlout/genre/index.html"
 echo "<li><a href=\"../tvshow/index.1.html\">TV Shows [$tvCount]</a></li>" >> "$htmlout/genre/index.html"
 echo "<li><a href=\"../movie/index.1.html\">Movies [$movieCount]</a></li>" >> "$htmlout/genre/index.html"
@@ -692,7 +685,7 @@ for genre in $genres; do
       echo "<link rel=\"stylesheet\" href=\"../kodisheet.css\" type=\"text/css\">" >> "$htmlout/genre/$filter.$genre.html"
       echo "</head><body>" >> "$htmlout/genre/$filter.$genre.html"
       echo "<p class=\"navigation\">" >> "$htmlout/genre/$filter.$genre.html"
-      echo "<font class=\"heading\"><ul><li>" >> "$htmlout/genre/$filter.$genre.html"
+      echo "<font class=\"menuheading\"><ul><li>" >> "$htmlout/genre/$filter.$genre.html"
       echo "<a href=\"../index.html\">Home</a></li>" >> "$htmlout/genre/$filter.$genre.html"
 
       echo "<li><a href=\"../tvshow/index.1.html\">TV Shows [$tvCount]</a></li>" >> "$htmlout/genre/$filter.$genre.html"
